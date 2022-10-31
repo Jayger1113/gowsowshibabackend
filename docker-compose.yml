@@ -1,0 +1,43 @@
+version: '3'
+
+networks:
+  local:
+    driver: bridge
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    container_name: elasticsearch
+    environment:
+      - node.name=es01
+      - cluster.initial_master_nodes=es01
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - local
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /yourpath/docker/elasticsearch/data:/usr/share/elasticsearch/data
+    ports: ['9200:9200']
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.15.0
+    container_name: kibana
+    networks:
+      - local
+    ports: ['5601:5601']
+    depends_on: ['elasticsearch']
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.15.0
+    container_name: apm_server
+    networks:
+      - local
+    ports: ['8200:8200']
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    depends_on: ['elasticsearch', 'kibana']
