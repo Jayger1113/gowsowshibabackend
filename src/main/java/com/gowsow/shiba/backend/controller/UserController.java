@@ -1,6 +1,8 @@
 package com.gowsow.shiba.backend.controller;
 
 import com.gowsow.shiba.backend.controller.request.user.UserLoginOrRegisterRequest;
+import com.gowsow.shiba.backend.controller.request.user.UserLogoutRequest;
+import com.gowsow.shiba.backend.dto.UserLogOutResponse;
 import com.gowsow.shiba.backend.dto.UserLoginOrRegisterResponse;
 import com.gowsow.shiba.backend.errorhandle.CustomException;
 import com.gowsow.shiba.backend.service.UserService;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -48,5 +49,20 @@ public class UserController {
         return ResponseEntity.ok().body(res);
     }
 
-
+    @ApiOperation(value = "user logout but we don't handle for now", response = UserLogOutResponse.class)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", content = {
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserLogOutResponse.class))})})
+    @RequestMapping(value = "/logout", method = RequestMethod.POST, produces = {
+            MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> logout(
+            @Valid @ApiParam(required = true) @RequestBody UserLogoutRequest req,
+            BindingResult errors) throws Exception {
+        if (errors.hasErrors()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, errors.getFieldError().getDefaultMessage());
+        }
+        UserLogOutResponse res = new UserLogOutResponse();
+        res.setMsg("logout success");
+        res.setStatus(0);
+        return ResponseEntity.ok().body(res);
+    }
 }
